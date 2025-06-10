@@ -6,19 +6,22 @@ import { formatError } from "../helpers/auth.helper.js";
 const authRouter = Router();
 
 //register route
-authRouter.post("/", async (req: Request, res: Response): Promise<any> => {
-  try {
-    const body = req.body;
-    const payload = registerSchema.parse(body);
-    return res
-      .status(200)
-      .json({ message: "Checks applied, no errors found", data: payload });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      const formattedError = formatError(error);
-      return res.status(422).json(formattedError);
+authRouter.post(
+  "/register",
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const body = req.body;
+      const payload = registerSchema.parse(body);
+      return res
+        .status(200)
+        .json({ message: "Checks applied, no errors found", data: payload });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const formattedError = formatError(error);
+        return res.status(422).json(formattedError);
+      }
     }
   }
-});
+);
 
 export default authRouter;
