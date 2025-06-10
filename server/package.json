@@ -11,20 +11,30 @@
     "server": "nodemon ./dist/index.js",
     "dev": "concurrently \"npm run watch\" \"npm run server\"",
     "watch": "tsc -w",
-    "build": "tsc"
+    "build": "tsc && npm run copy-files",
+    "copy-files": "copyfiles -u 1 \"src/views/**/*\" dist/",
+    "watch-views": "nodemon --watch src/views -e ejs -x \"npm run copy-files\""
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
+    "bullmq": "^5.53.2",
     "concurrently": "^9.1.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "prisma": "^6.9.0"
+    "nodemailer": "^7.0.3",
+    "prisma": "^6.9.0",
+    "zod": "^3.25.57"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
+    "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.3",
+    "@types/nodemailer": "^6.4.17",
+    "copyfiles": "^2.4.1",
     "nodemon": "^3.1.10",
     "typescript": "^5.8.3"
   }
