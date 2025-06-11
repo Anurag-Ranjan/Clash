@@ -1,3 +1,4 @@
 import Env from "./env";
 
-export const VERIFYURL = `${Env.API_BASE_URL}/api/v1/verify`;
+export const REGISTER_URL = Env.REGISTER_ROUTE;
+console.log(REGISTER_URL);

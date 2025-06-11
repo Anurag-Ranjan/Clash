@@ -72,8 +72,8 @@ authRouter.post(
         .json({ message: "User registered successfully", data: createdUser });
     } catch (error: any) {
       if (error instanceof ZodError) {
-        const formattedError = formatError(error);
-        return res.status(422).json(formattedError);
+        const errors = formatError(error);
+        return res.status(422).json({ message: "Invalid data", errors });
       }
       console.log(error.message);
       return res.status(500).json({ message: "Something went wrong" });
