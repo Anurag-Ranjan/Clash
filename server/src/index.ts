@@ -3,15 +3,18 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import ejs from "ejs";
 import router from "./routes/index.js";
+import cors from "cors";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app: Application = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cors());
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "./views"));

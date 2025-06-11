@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('../partials/head') %>
+  <body>
+    <div class="container">
+      <h1>Please Verify your email</h1>
+      <p>
+        Welcome to Clash, <strong><%= name %></strong>. Kindly click on the
+        following link to verify your email <strong><%= email %></strong>.
+      </p>
+      <a href="<%= verifyUrl %>" target="_blank">Verify email</a>
+      <p>Link will expire within three hours, so kindly verfiy your email</p>
+      <br />
+      <p>Good to have you with us.</p>
+      <%- include('../partials/footer') %>
+    </div>
+  </body>
+</html>

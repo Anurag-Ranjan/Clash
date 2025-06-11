@@ -1,0 +1,5 @@
+Todos for the application before deployment:
+
+1. Create an environment variable for the url to be passed into the email for verification.
+2. Create a helper for the sending the email by just passing the filename, payload and url(optional).
+3. Also change the implementation of the email verification as it is vulnerable to attacks
