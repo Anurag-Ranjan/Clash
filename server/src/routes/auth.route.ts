@@ -1,11 +1,13 @@
 import { Router, Request, Response } from "express";
-import { registerSchema } from "../validation/auth.validation.js";
+import { loginSchema, registerSchema } from "../validation/auth.validation.js";
 import { ZodError } from "zod";
 import { formatError } from "../helpers/auth.helper.js";
 import prisma from "../config/database.js";
 import bcrypt from "bcrypt";
 import { formatMailBody } from "../helpers/auth.helper.js";
 import { v4 as uuidv4 } from "uuid";
+import jwt from "jsonwebtoken";
+import { protectRoute } from "../Middlewares/auth.middleware.js";
 
 const authRouter = Router();
 
@@ -121,4 +123,79 @@ authRouter.post(
   }
 );
 
+authRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
+  try {
+    const body = req.body;
+    const payload = loginSchema.parse(body);
+    const user = await prisma.user.findUnique({
+      where: {
+        email: payload.email,
+      },
+    });
+
+    if (user?.email_verified_at == null || !user.email_verified_at) {
+      return res.status(422).json({
+        errors: {
+          email: "Email has not been verified",
+        },
+      });
+    }
+    if (!user || user == null) {
+      return res.status(422).json({
+        errors: {
+          email: "No user found with the email",
+        },
+      });
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(
+      payload.password,
+      user.password
+    );
+
+    if (!isPasswordCorrect) {
+      return res.status(422).json({
+        errors: {
+          email: "Invalid credentials",
+        },
+      });
+    }
+
+    const token = await jwt.sign(
+      { email: user.email, name: user.name },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("authToken", token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    });
+
+    return res.status(200).json({ message: "Login Successful", data: user });
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      const errors = formatError(error);
+      return res.status(422).json({ message: "Invalid data", errors });
+    }
+    console.log(error.message);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
 export default authRouter;
+
+authRouter.get(
+  "/getuser",
+  protectRoute,
+  (req: Request, res: Response): void => {
+    try {
+      const user = req.user;
+      res.status(200).json({ message: "User fetched successfully", user });
+      return;
+    } catch (error) {
+      res.status(500).json({ message: "Somehting went wrong" });
+      return;
+    }
+  }
+);
