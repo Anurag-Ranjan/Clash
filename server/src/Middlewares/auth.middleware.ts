@@ -13,11 +13,13 @@ export const protectRoute = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.cookies?.authToken;
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader === null || authHeader === undefined) {
       res.status(401).json({ errors: { message: "Unauthorized access" } });
       return;
     }
+
+    const token = authHeader.split(" ")[1];
 
     const decoded = jwt.verify(
       token,

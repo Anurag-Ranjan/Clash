@@ -1,12 +1,12 @@
 "use client";
-import React, { useActionState } from "react";
+
+import React, { useActionState, useEffect } from "react";
 import Input from "@/components/ui/input";
-import Link from "next/link";
 import Label from "@/components/ui/label";
-import { FormButton } from "@/components/FormButton";
-import { registerAction } from "@/actions/authActions";
-import { REGISTER_URL } from "@/lib/apiEndPoints";
-import { useFormState } from "react-dom";
+import Link from "next/link";
+import { FormButton } from "../FormButton";
+import { loginAction } from "@/actions/authActions";
+import { signIn } from "next-auth/react";
 
 type FormState = {
   status: number;
@@ -17,35 +17,33 @@ type FormState = {
     password?: string;
     confirm_password?: string;
   };
+  data?: { email?: string; password?: string };
 };
 
-function RegisterForm() {
-  console.log(REGISTER_URL);
+function LoginForm() {
   const initState: FormState = {
     status: 0,
     message: "",
     errors: {},
+    data: {},
   };
   const [formState, formAction] = useActionState<FormState, FormData>(
-    registerAction,
+    loginAction,
     initState
   );
-  console.log(formState);
+
+  useEffect(() => {
+    if (formState.status === 200)
+      signIn("credentials", {
+        email: formState?.data?.email,
+        password: formState?.data?.password,
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+  }, [formState]);
+
   return (
     <form action={formAction}>
-      <div className="marginBottom">
-        <Label
-          labelMessage="Username"
-          className="font-semibold text-xl"
-        ></Label>
-        <Input
-          className="w-full"
-          type="text"
-          placeholder="Enter your Username"
-          name="name"
-        ></Input>
-        <span className="text-red-500">{formState?.errors?.name}</span>
-      </div>
       <div className="marginBottom">
         <Label labelMessage="Email" className="font-semibold text-xl"></Label>
         <Input
@@ -69,32 +67,22 @@ function RegisterForm() {
         ></Input>
         <span className="text-red-500">{formState?.errors?.password}</span>
       </div>
-      <div className="marginBottom">
-        <Label
-          labelMessage="Confirm Password"
-          className="font-semibold text-xl"
-        ></Label>
-        <Input
-          className="w-full"
-          type="password"
-          placeholder="Re Enter your password"
-          name="confirm_password"
-        ></Input>
-        <span className="text-red-500">
-          {formState?.errors?.confirm_password}
-        </span>
+      <div className="marginBottom text-right marginInput">
+        <Link href="forgot-password" className="font-bold">
+          Forgot password?
+        </Link>
       </div>
       <div className="padding-10 marginBottom">
-        <FormButton message={"Register"}></FormButton>
+        <FormButton message={"Login"} />
       </div>
       <p>
-        Already have an account?{" "}
+        Don't have an account?{" "}
         <strong>
-          <Link href={"/login"}>Login</Link>
+          <Link href={"/register"}>Register</Link>
         </strong>
       </p>
     </form>
   );
 }
 
-export default RegisterForm;
+export default LoginForm;

@@ -1,5 +1,5 @@
 "use server";
-import { REGISTER_URL } from "@/lib/apiEndPoints";
+import { CHECK_URL, LOGIN_URL, REGISTER_URL } from "@/lib/apiEndPoints";
 import axios, { AxiosError } from "axios";
 
 type FormState = {
@@ -11,6 +11,7 @@ type FormState = {
     password?: string;
     confirm_password?: string;
   };
+  data?: { email?: string; password?: string };
 };
 
 export async function registerAction(
@@ -36,6 +37,40 @@ export async function registerAction(
       status: 200,
       message: data?.message ?? "User registered successfully",
       errors: {},
+    };
+  } catch (error: any) {
+    console.log(error);
+    if (error instanceof AxiosError) {
+      return {
+        status: 422,
+        message: error.response?.data?.message,
+        errors: error.response?.data?.errors,
+      };
+    }
+    return {
+      status: 500,
+      message: "Something went wrong",
+      errors: {},
+    };
+  }
+}
+
+export async function loginAction(
+  prevState: any,
+  formData: FormData
+): Promise<FormState> {
+  try {
+    console.log(formData.get("email"), formData.get("password"), LOGIN_URL);
+    const { data } = await axios.post(CHECK_URL, {
+      email: formData.get("email"),
+      password: formData.get("password"),
+    });
+    console.log(data);
+    return {
+      status: 200,
+      message: data?.message ?? "Logging in...",
+      errors: {},
+      data: data.data,
     };
   } catch (error: any) {
     console.log(error);

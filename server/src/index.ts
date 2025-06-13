@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import ejs from "ejs";
 import router from "./routes/index.js";
 import cors from "cors";
+import { appLimiter } from "./config/limiter.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
+app.use(appLimiter);
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "./views"));

@@ -8,12 +8,14 @@ import { formatMailBody } from "../helpers/auth.helper.js";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 import { protectRoute } from "../Middlewares/auth.middleware.js";
+import { authLimiter } from "../config/limiter.js";
 
 const authRouter = Router();
 
 //register route
 authRouter.post(
   "/register",
+  authLimiter,
   async (req: Request, res: Response): Promise<any> => {
     try {
       const body = req.body;
@@ -85,6 +87,7 @@ authRouter.post(
 
 authRouter.post(
   "/verify",
+  authLimiter,
   async (req: Request, res: Response): Promise<any> => {
     try {
       const token = req.query.token!;
@@ -123,75 +126,155 @@ authRouter.post(
   }
 );
 
-authRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
-  try {
-    const body = req.body;
-    const payload = loginSchema.parse(body);
-    const user = await prisma.user.findUnique({
-      where: {
-        email: payload.email,
-      },
-    });
-
-    if (user?.email_verified_at == null || !user.email_verified_at) {
-      return res.status(422).json({
-        errors: {
-          email: "Email has not been verified",
+authRouter.post(
+  "/login",
+  authLimiter,
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const body = req.body;
+      const payload = loginSchema.parse(body);
+      const user = await prisma.user.findUnique({
+        where: {
+          email: payload.email,
+        },
+        select: {
+          email: true,
+          id: true,
+          name: true,
+          email_verified_at: true,
+          password: true,
         },
       });
+
+      if (!user || user == null) {
+        return res.status(422).json({
+          errors: {
+            email: "No user found with the email",
+          },
+        });
+      }
+
+      if (user?.email_verified_at == null || !user.email_verified_at) {
+        return res.status(422).json({
+          errors: {
+            email: "Email has not been verified",
+          },
+        });
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(
+        payload.password,
+        user.password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(422).json({
+          errors: {
+            email: "Invalid credentials",
+          },
+        });
+      }
+      const token = await jwt.sign(
+        { email: user.email, name: user.name },
+        process.env.JWT_SECRET!,
+        { expiresIn: "7d" }
+      );
+
+      const resUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        token: `Bearer ${token}`,
+      };
+
+      return res
+        .status(200)
+        .json({ message: "Login Successful", data: resUser });
+    } catch (error: any) {
+      if (error instanceof ZodError) {
+        const errors = formatError(error);
+        return res.status(422).json({ message: "Invalid data", errors });
+      }
+      console.log(error.message);
+      return res.status(500).json({ message: "Something went wrong" });
     }
-    if (!user || user == null) {
-      return res.status(422).json({
-        errors: {
-          email: "No user found with the email",
-        },
-      });
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(
-      payload.password,
-      user.password
-    );
-
-    if (!isPasswordCorrect) {
-      return res.status(422).json({
-        errors: {
-          email: "Invalid credentials",
-        },
-      });
-    }
-
-    const token = await jwt.sign(
-      { email: user.email, name: user.name },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
-
-    res.cookie("authToken", token, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
-
-    return res.status(200).json({ message: "Login Successful", data: user });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      const errors = formatError(error);
-      return res.status(422).json({ message: "Invalid data", errors });
-    }
-    console.log(error.message);
-    return res.status(500).json({ message: "Something went wrong" });
   }
-});
+);
 
-export default authRouter;
+authRouter.post(
+  "/check/credentials",
+  authLimiter,
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const body = req.body;
+      const payload = loginSchema.parse(body);
+      const user = await prisma.user.findUnique({
+        where: {
+          email: payload.email,
+        },
+        select: {
+          email: true,
+          id: true,
+          name: true,
+          email_verified_at: true,
+          password: true,
+        },
+      });
+
+      if (!user || user == null) {
+        return res.status(422).json({
+          errors: {
+            email: "No user found with the email",
+          },
+        });
+      }
+
+      if (user?.email_verified_at == null || !user.email_verified_at) {
+        return res.status(422).json({
+          errors: {
+            email: "Email has not been verified",
+          },
+        });
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(
+        payload.password,
+        user.password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(422).json({
+          errors: {
+            email: "Invalid credentials",
+          },
+        });
+      }
+
+      return res.status(200).json({
+        message: "Login Successful",
+        data: { email: user.email, password: payload.password },
+      });
+    } catch (error: any) {
+      if (error instanceof ZodError) {
+        const errors = formatError(error);
+        return res.status(422).json({ message: "Invalid data", errors });
+      }
+      console.log(error.message);
+      return res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+);
 
 authRouter.get(
   "/getuser",
+  authLimiter,
   protectRoute,
   (req: Request, res: Response): void => {
     try {
       const user = req.user;
-      res.status(200).json({ message: "User fetched successfully", user });
+      res
+        .status(200)
+        .json({ message: "User fetched successfully", data: user });
       return;
     } catch (error) {
       res.status(500).json({ message: "Somehting went wrong" });
@@ -199,3 +282,5 @@ authRouter.get(
     }
   }
 );
+
+export default authRouter;
