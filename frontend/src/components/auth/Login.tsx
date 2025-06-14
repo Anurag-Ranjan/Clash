@@ -68,7 +68,7 @@ function LoginForm() {
         <span className="text-red-500">{formState?.errors?.password}</span>
       </div>
       <div className="marginBottom text-right marginInput">
-        <Link href="forgot-password" className="font-bold">
+        <Link href="forgotpassword" className="font-bold">
           Forgot password?
         </Link>
       </div>

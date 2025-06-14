@@ -11,12 +11,13 @@ export const protectRoute = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<any> => {
   try {
     const authHeader = req.headers.authorization;
     if (authHeader === null || authHeader === undefined) {
-      res.status(401).json({ errors: { message: "Unauthorized access" } });
-      return;
+      return res
+        .status(401)
+        .json({ errors: { message: "Unauthorized access" } });
     }
 
     const token = authHeader.split(" ")[1];
