@@ -7,7 +7,7 @@ import {
   resetPasswordSchema,
 } from "../validation/password.validation.js";
 import prisma from "../config/database.js";
-import { v4 as uuid } from "uuid";
+import { v4 as uuid4 } from "uuid";
 import { formatMailBody } from "../helpers/auth.helper.js";
 import bcrypt from "bcrypt";
 
@@ -33,7 +33,8 @@ passwordRouter.post(
           .json({ errors: { email: "Email not registered" } });
       }
 
-      const password_reset_token = uuid();
+      const salt = await bcrypt.genSalt(10);
+      const password_reset_token = await bcrypt.hash(uuid4(), salt);
 
       await prisma.user.update({
         where: {
@@ -41,6 +42,7 @@ passwordRouter.post(
         },
         data: {
           password_reset_token: password_reset_token,
+          token_sent_at: new Date().toISOString(),
         },
       });
 
@@ -91,6 +93,14 @@ passwordRouter.post(
         return res.status(401).json({ message: "Invalid token" });
       }
 
+      const expiryLimit = 30 * 60 * 1000;
+      const now = new Date();
+      const createdDate = new Date(user.token_sent_at!);
+
+      if (now.getTime() - createdDate.getTime() > expiryLimit) {
+        return res.status(422).json({ message: "Password reset time expired" });
+      }
+
       const salt = await bcrypt.genSalt(10);
 
       const hashedPass = await bcrypt.hash(payload.password, salt);
@@ -102,6 +112,7 @@ passwordRouter.post(
         data: {
           password: hashedPass,
           password_reset_token: null,
+          token_sent_at: null,
         },
       });
 

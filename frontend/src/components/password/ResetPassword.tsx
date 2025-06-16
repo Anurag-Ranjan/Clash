@@ -1,11 +1,11 @@
 "use client";
-import React, { useActionState } from "react";
+import React, { useActionState, useEffect } from "react";
 import Input from "@/components/ui/input";
 import Label from "@/components/ui/label";
 import { FormButton } from "@/components/FormButton";
-import { RESET_PASSWORD_URL } from "@/lib/apiEndPoints";
 import { resetAction } from "@/actions/passwordActions";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type FormState = {
   status: number;
@@ -21,6 +21,7 @@ type FormState = {
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") as string;
+  const router = useRouter();
   const initState: FormState = {
     status: 0,
     message: "",
@@ -31,6 +32,11 @@ function ResetPasswordForm() {
     resetAction,
     initState
   );
+  useEffect(() => {
+    if (formState.status === 200) {
+      setTimeout(() => router.replace("/login"), 1000);
+    }
+  }, [formState]);
   return (
     <form action={formAction}>
       <div className="marginBottom">
