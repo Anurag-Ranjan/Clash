@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { supportedMimes } from "../config/filesystem.js";
 
 export const clashSchema = z.object({
   title: z
@@ -14,5 +15,18 @@ export const clashSchema = z.object({
   expire_at: z
     .string({ message: "Expire date is required" })
     .min(5, { message: "Please pass a valid date" }),
-  image: z.string(),
+  image: z.string().optional(),
 });
+
+export const imageValidator = (size: number, mime: string): string | null => {
+  if (bytesToMb(size) > 2) {
+    return "File size must be less than 2 MB";
+  } else if (!supportedMimes.includes(mime)) {
+    return "File type is not supported";
+  }
+  return null;
+};
+
+const bytesToMb = (size: number): number => {
+  return size / (1024 * 1024);
+};
