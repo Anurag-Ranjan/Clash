@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* @import url("https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Gidole&family=Mukta:wght@200;300;400;500;600;700;800&display=swap"); */
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -128,6 +130,7 @@
 * {
   margin: 0px;
   padding: 0px;
+  font-family: sans-serif;
 }
 html,
 body {
@@ -152,4 +155,24 @@ body {
 
 .marginInput {
   margin-bottom: 15px;
+}
+
+/* globals.css or your custom CSS file */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 8px; /* ✅ Rounded corners */
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }

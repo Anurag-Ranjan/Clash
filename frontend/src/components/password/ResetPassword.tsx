@@ -1,7 +1,7 @@
 "use client";
 import React, { useActionState, useEffect } from "react";
-import Input from "@/components/ui/input";
-import Label from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FormButton } from "@/components/FormButton";
 import { resetAction } from "@/actions/passwordActions";
 import { useSearchParams } from "next/navigation";
@@ -40,10 +40,7 @@ function ResetPasswordForm() {
   return (
     <form action={formAction}>
       <div className="marginBottom">
-        <Label
-          labelMessage="Password"
-          className="font-semibold text-xl"
-        ></Label>
+        <Label className="font-semibold text-xl">Password</Label>
         <Input
           className="w-full"
           type="password"
@@ -53,10 +50,7 @@ function ResetPasswordForm() {
         <span className="text-red-500">{formState?.errors?.password}</span>
       </div>
       <div className="marginBottom">
-        <Label
-          labelMessage="Confirm Password"
-          className="font-semibold text-xl"
-        ></Label>
+        <Label className="font-semibold text-xl">Confirm Password</Label>
         <Input
           className="w-full"
           type="password"

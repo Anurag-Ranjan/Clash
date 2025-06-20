@@ -1,7 +1,7 @@
 "use client";
 import React, { useActionState } from "react";
-import Input from "@/components/ui/input";
-import Label from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FormButton } from "@/components/FormButton";
 import { forgetAction } from "@/actions/passwordActions";
 
@@ -28,7 +28,7 @@ function ForgotPasswordForm() {
   return (
     <form action={formAction}>
       <div className="marginBottom">
-        <Label labelMessage="Email" className="font-semibold text-xl"></Label>
+        <Label className="font-semibold text-xl">Email</Label>
         <Input
           className="w-full"
           type="text"

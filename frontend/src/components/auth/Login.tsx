@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useActionState, useEffect } from "react";
-import Input from "@/components/ui/input";
-import Label from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { FormButton } from "../FormButton";
 import { loginAction } from "@/actions/authActions";
@@ -45,7 +45,7 @@ function LoginForm() {
   return (
     <form action={formAction}>
       <div className="marginBottom">
-        <Label labelMessage="Email" className="font-semibold text-xl"></Label>
+        <Label className="font-semibold text-xl">Email</Label>
         <Input
           className="w-full"
           type="email"
@@ -55,10 +55,7 @@ function LoginForm() {
         <span className="text-red-500">{formState?.errors?.email}</span>
       </div>
       <div className="marginBottom">
-        <Label
-          labelMessage="Password"
-          className="font-semibold text-xl"
-        ></Label>
+        <Label className="font-semibold text-xl">Password</Label>
         <Input
           className="w-full"
           type="password"

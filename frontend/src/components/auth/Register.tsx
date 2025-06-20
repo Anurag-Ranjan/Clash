@@ -1,12 +1,11 @@
 "use client";
 import React, { useActionState } from "react";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import Label from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
 import { FormButton } from "@/components/FormButton";
 import { registerAction } from "@/actions/authActions";
 import { REGISTER_URL } from "@/lib/apiEndPoints";
-import { useFormState } from "react-dom";
 
 type FormState = {
   status: number;
@@ -34,10 +33,7 @@ function RegisterForm() {
   return (
     <form action={formAction}>
       <div className="marginBottom">
-        <Label
-          labelMessage="Username"
-          className="font-semibold text-xl"
-        ></Label>
+        <Label className="font-semibold text-xl">Username</Label>
         <Input
           className="w-full"
           type="text"
@@ -47,7 +43,7 @@ function RegisterForm() {
         <span className="text-red-500">{formState?.errors?.name}</span>
       </div>
       <div className="marginBottom">
-        <Label labelMessage="Email" className="font-semibold text-xl"></Label>
+        <Label className="font-semibold text-xl">Email</Label>
         <Input
           className="w-full"
           type="email"
@@ -57,10 +53,7 @@ function RegisterForm() {
         <span className="text-red-500">{formState?.errors?.email}</span>
       </div>
       <div className="marginBottom">
-        <Label
-          labelMessage="Password"
-          className="font-semibold text-xl"
-        ></Label>
+        <Label className="font-semibold text-xl">Password</Label>
         <Input
           className="w-full"
           type="password"
@@ -70,10 +63,7 @@ function RegisterForm() {
         <span className="text-red-500">{formState?.errors?.password}</span>
       </div>
       <div className="marginBottom">
-        <Label
-          labelMessage="Confirm Password"
-          className="font-semibold text-xl"
-        ></Label>
+        <Label className="font-semibold text-xl">Confirm Password</Label>
         <Input
           className="w-full"
           type="password"
